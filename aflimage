@@ -1,31 +1,10 @@
-FROM ubuntu:18.04
+FROM mrlzh/base
 
-ARG APT
-
-SHELL ["/bin/bash", "-c"]
-
-ENV DEBIAN_FRONTEND=noninteractive \
-    PYTHONIOENCODING=utf8 \
-    LC_ALL=C.UTF-8 \
-    LANG=C.UTF-8
-
-# install proper tools
-RUN ([ "$APT" == "" ] || (sed -i "s/security.ubuntu.com/$APT/g" /etc/apt/sources.list && sed -i "s/archive.ubuntu.com/$APT/g" /etc/apt/sources.list) ) &&\
-    apt-get update && \
-    apt-get install -y vim nano htop autoconf automake build-essential libtool cmake git sudo software-properties-common gperf libselinux1-dev  bison texinfo flex zlib1g-dev libexpat1-dev libmpg123-dev wget curl python3-pip python-pip unzip pkg-config libunwind8-dev binutils-dev libblocksruntime-dev clang-7 gcc-4.8 g++-4.8 &&\
-    update-alternatives --install /usr/bin/clang clang /usr/bin/clang-7 50 &&\
-    update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-7 50 &&\
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50 &&\
-    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50 &&\
-    python -m pip install -U pip &&\
-    python3 -m pip install -U pip &&\
-    sed -i 's/python3/python/' /usr/local/bin/pip &&\
-    git clone https://github.com/google/AFL && \
+RUN git clone https://github.com/google/AFL && \
     cd AFL && \
     CC=clang CXX=clang++ make && \
     make install
 
-
 WORKDIR /AFL
 
-ENV CC=afl-gcc CXX=afl-g++ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV CC=afl-gcc CXX=afl-g++ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES=1 AFL_SKIP_CPUFREQ=1
